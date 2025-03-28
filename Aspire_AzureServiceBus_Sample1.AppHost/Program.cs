@@ -1,8 +1,26 @@
 using Aspire.Hosting.Azure;
+using Azure.Provisioning.ServiceBus;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var serviceBus = builder.AddAzureServiceBus("servicebus");
+//var serviceBus = builder.AddAzureServiceBus("servicebus");
+
+
+var serviceBus = builder.AddAzureServiceBus("service-bus")
+    .ConfigureInfrastructure(infra =>
+    {
+        var serviceBusNamespace = infra.GetProvisionableResources()
+                                       .OfType<ServiceBusNamespace>()
+                                       .Single();
+
+        serviceBusNamespace.Name = "luiscocoservicebus";
+
+        //serviceBusNamespace.Sku = new ServiceBusSku
+        //{
+        //    Tier = ServiceBusSkuTier.Premium
+        //};
+        //serviceBusNamespace.Tags.Add("ExampleKey", "Example value");
+    });
 
 var queue = serviceBus.AddServiceBusQueue("queueOne", "queue1")
     .WithProperties(queue => queue.DeadLetteringOnMessageExpiration = false);
