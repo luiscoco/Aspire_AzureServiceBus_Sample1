@@ -56,11 +56,11 @@ We select the .NET 9 or .NET 10 framework and press on the Create button
 
 This is the solution structure
 
-
+![image](https://github.com/user-attachments/assets/ef5b7f61-c200-4b2d-9861-22a69534658d)
 
 ## 3. We load the Nuget packages in the AppHost project
 
-
+![image](https://github.com/user-attachments/assets/3879fbce-a19b-48b9-b9f7-fdd959937f61)
 
 ## 4. AppHost project source code
 
@@ -155,25 +155,25 @@ We input the secrets in the **secrets.json** file:
 
 ## 5. We create a C# console project (ServiceBusWorker)
 
-
+![image](https://github.com/user-attachments/assets/a2f4a800-d1cc-4162-bb6c-b03f3f22a7ee)
 
 ## 6. We load the Nuget packages in C# console project
 
-
+![image](https://github.com/user-attachments/assets/9773cde8-d28b-449f-8ddf-2083d74be20a)
 
 We add the **.NET Aspire Orchestrator Support** in the Console application
 
-
+![image](https://github.com/user-attachments/assets/c04051b7-fd36-4744-87a9-21e0a880d7f2)
 
 We confirm the Console project was added as reference in the AppHost project
 
+![image](https://github.com/user-attachments/assets/2847a9bf-22fa-45e9-ab66-19241154f5bf)
 
+We also has to add the **ServiceDefaults** project as reference in the Console project
 
-We also has to add the ServiceDefaults project as reference in the Console project
+![image](https://github.com/user-attachments/assets/80bed940-5bcd-4d49-8ca7-86afbfe6bcc1)
 
-
-
-## 7. We configure the appsettings.json file
+## 7. We configure the appsettings.json file in the ServiceWorker project
 
 ```json
 "ConnectionStrings": {
