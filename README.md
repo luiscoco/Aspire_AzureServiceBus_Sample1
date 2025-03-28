@@ -4,6 +4,10 @@ In this post, we’ll walk through how to create an Azure ServiceBus using .NET 
 
 You’ll learn how to define and provision these resources as part of a distributed application
 
+For more information about this post, please visit the official website: 
+
+https://learn.microsoft.com/es-es/dotnet/aspire/messaging/azure-service-bus-integration?tabs=dotnet-cli
+
 ## 1. Prerrequisites
 
 ### 1.1. Install .NET 9
@@ -60,15 +64,84 @@ This is the solution structure
 
 ## 4. AppHost project source code
 
-This C# code defines a distributed application using .NET Aspire, specifically targeting Azure services with infrastructure provisioning (Azure ServiceBus) support
+This C# code defines a **distributed application** using .NET Aspire, specifically targeting Azure services with infrastructure provisioning (Azure ServiceBus) support
 
-This code:
+This code is ideal for **cloud-native messaging setups** using Azure and .NET Aspire 
+
+It sets up a **Azure Service Bus** infrastructure using Aspire:
+
+a) Adds a queue and a topic with a subscription.
+
+b) Configures message filters and retry logic.
+
+c) Connects a background worker project that consumes those resources.
 
 **Program.cs**
 
 ```csharp
+using Aspire.Hosting.Azure;
+
+var builder = DistributedApplication.CreateBuilder(args);
+
+var serviceBus = builder.AddAzureServiceBus("servicebus");
+
+var queue = serviceBus.AddServiceBusQueue("queueOne", "queue1")
+    .WithProperties(queue => queue.DeadLetteringOnMessageExpiration = false);
+
+var subscription = serviceBus.AddServiceBusTopic("topicOne", "topic1")
+    .AddServiceBusSubscription("sub1")
+    .WithProperties(subscription =>
+    {
+        subscription.MaxDeliveryCount = 10;
+
+        var rule = new AzureServiceBusRule("app-prop-filter-1")
+        {
+            CorrelationFilter = new()
+            {
+                ContentType = "application/text",
+                CorrelationId = "id1",
+                Subject = "subject1",
+                MessageId = "msgid1",
+                ReplyTo = "someQueue",
+                ReplyToSessionId = "sessionId",
+                SessionId = "session1",
+                SendTo = "xyz"
+            }
+        };
+        subscription.Rules.Add(rule);
+    });
+
+builder.AddProject<Projects.ServiceBusWorker>("worker")
+    .WithReference(queue).WaitFor(queue)
+    .WithReference(subscription).WaitFor(subscription);
+
+builder.Build().Run();
+```
+
+In more detail:
+
+a) We add an Azure Service Bus resource to the application with the name servicebus.
+
+```csharp
+var serviceBus = builder.AddAzureServiceBus("servicebus");
+```
+
+b) Adds a queue named queue1 with the Aspire logical name queueOne.
+
+Disables dead lettering when messages expire.
+
+```csharp
+var queue = serviceBus.AddServiceBusQueue("queueOne", "queue1")
+    .WithProperties(queue => queue.DeadLetteringOnMessageExpiration = false);
+```
+
+c) 
+
+```csharp
 
 ```
+
+
 
 
 We also have to set the **AppHost project secrets**
