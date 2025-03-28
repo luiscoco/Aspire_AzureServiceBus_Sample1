@@ -152,3 +152,122 @@ We input the secrets in the **secrets.json** file:
   }
 }
 ```
+
+## 5. We create a C# console project (ServiceBusWorker)
+
+
+
+## 6. We load the Nuget packages in C# console project
+
+
+
+We add the **.NET Aspire Orchestrator Support** in the Console application
+
+
+
+We confirm the Console project was added as reference in the AppHost project
+
+
+
+We also has to add the ServiceDefaults project as reference in the Console project
+
+
+
+## 7. We configure the appsettings.json file
+
+```json
+"ConnectionStrings": {
+"serviceBusConnectionName": "luiscocoservicebus.servicebus.windows.net"
+}
+```
+
+## 8. We Add the Consumer and Producer in the ServiceWorker project
+
+See the **ServiceWorker** project structure
+
+The **Producer** is a background worker in .NET that periodically **sends messages to an Azure Service Bus** queue or topic using the ServiceBusSender
+
+This **worker** could simulate a **message-producing microservice** — like a telemetry sender, event generator, or job dispatcher — in a **distributed system architecture** using **Azure Service Bus**
+
+This is **Producer** class code:
+
+```csharp
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace ServiceBusWorker;
+
+internal sealed class Producer(ServiceBusSender sender, ILogger<Producer> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Starting producer...");
+
+        var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await periodicTimer.WaitForNextTickAsync(cancellationToken);
+
+            await sender.SendMessageAsync(new ServiceBusMessage($"Hello, World! It's {DateTime.Now} here."), cancellationToken);
+        }
+    }
+
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Stopping producer...");
+        return Task.CompletedTask;
+    }
+}
+```
+
+The **Consumer** is a background worker in .NET that **consumes messages from an Azure Service Bus** queue or topic using the ServiceBusProcessor
+
+This **worker** acts as a message consumer in a distributed system, listening to Azure Service Bus for events or tasks to process — e.g., order handling, event logging, or notifications.
+
+This is **Consumer** class code:
+
+```csharp
+using System.Text;
+using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+namespace ServiceBusWorker;
+
+internal sealed class Consumer(ServiceBusProcessor processor, ILogger<Consumer> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    {
+        processor.ProcessMessageAsync += MessageHandler;
+
+        processor.ProcessErrorAsync += ErrorHandler;
+
+        await processor.StartProcessingAsync(cancellationToken);
+    }
+
+    private Task MessageHandler(ProcessMessageEventArgs args)
+    {
+        // Process the message
+        logger.LogInformation("Received message: {Message}", Encoding.UTF8.GetString(args.Message.Body));
+
+        return Task.CompletedTask;
+    }
+
+    private Task ErrorHandler(ProcessErrorEventArgs args)
+    {
+        logger.LogError(args.Exception, "Error processing message");
+
+        return Task.CompletedTask;
+    }
+
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Stopping consumer...");
+        return Task.CompletedTask;
+    }
+}
+```
