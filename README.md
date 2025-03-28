@@ -1,4 +1,4 @@
-# AIntegrating .NET Aspire 9.1 with Azure ServiceBus
+# Integrating .NET Aspire 9.1 with Azure ServiceBus
 
 In this post, we’ll walk through how to create an Azure ServiceBus using .NET Aspire 9.1
 
