@@ -271,3 +271,31 @@ internal sealed class Consumer(ServiceBusProcessor processor, ILogger<Consumer> 
     }
 }
 ```
+
+## 9. We run the application and see the results
+
+We set **AppHost** project as the **StartUp project**
+
+![image](https://github.com/user-attachments/assets/3c55577a-1b80-499e-9685-55fc969cfe40)
+
+We run the application and automatically we are redirected to the Aspire Dashboard
+
+![image](https://github.com/user-attachments/assets/b89055b4-d631-4e02-8413-b87c7f5670fc)
+
+We can verify in the **Worker** outputs
+
+![image](https://github.com/user-attachments/assets/115a3201-1ac4-473c-aa45-0c017b8a50b5)
+
+We also can login in Azure Portal and search for the created ServiceBus
+
+![image](https://github.com/user-attachments/assets/63dae68a-b6d3-40a6-91b7-7f6aa439d609)
+
+We verify the queue and topic created
+
+![image](https://github.com/user-attachments/assets/31567467-ed85-4a4f-ae38-fb6330fe23b5)
+
+![image](https://github.com/user-attachments/assets/7eed9b09-47d7-4209-bebd-2e29e8b63184)
+
+
+
+
