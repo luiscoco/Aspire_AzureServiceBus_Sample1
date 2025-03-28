@@ -132,32 +132,6 @@ builder.AddProject<Projects.ServiceBusWorker>("worker")
 builder.Build().Run();
 ```
 
-In more detail:
-
-a) We add an Azure Service Bus resource to the application with the name servicebus.
-
-```csharp
-var serviceBus = builder.AddAzureServiceBus("servicebus");
-```
-
-b) Adds a queue named queue1 with the Aspire logical name queueOne.
-
-Disables dead lettering when messages expire.
-
-```csharp
-var queue = serviceBus.AddServiceBusQueue("queueOne", "queue1")
-    .WithProperties(queue => queue.DeadLetteringOnMessageExpiration = false);
-```
-
-c) 
-
-```csharp
-
-```
-
-
-
-
 We also have to set the **AppHost project secrets**
 
 We right click on the AppHost project name and select the menu option **Manage User Secrets**
